@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Search</title>
+
+    <!-- Custom CSS Stylesheet -->
+    <link rel="stylesheet" type="text/css" href={{ url_for('static', filename='style.css') }} >   <!--"/static/style.css"-->
+</head>
+<body>
+    <div class="search-form">
+        <form action="results" method="GET">
+                <input name = "query" type="text"  class="search-bar" placeholder="Search" required>
+                <button type="submit" class="btn">Go</button>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Results</title>
+
+    <!-- Custom CSS Stylesheet -->
+    <link rel="stylesheet" type="text/css" href={{ url_for('static', filename='style.css') }}>
+</head>
+<body>
+    <button onclick="window.location.href = '{{url_for("index")}}';" class="btn">Back</button>
+    <h1>Query: {{ query_param }}.</h1>
+    <h2>Results</h2>
+    {% if results|length > 0 %}
+        <ul>
+            {% for link in results %}
+                <li><a href="//{{ link }}">{{ link }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h2>No Results Found.</h2>
+    {% endif %}
+
+</body>
+</html>
