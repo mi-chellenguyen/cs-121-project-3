@@ -15,8 +15,9 @@
     <h2>Results</h2>
     {% if results|length > 0 %}
         <ul>
-            {% for link in results %}
-                <li><a href="//{{ link }}">{{ link }}</a></li>
+            <!-- tuple = (link, tf-idf score) -->
+            {% for tuple in results %} 
+                <li><a href="//{{ tuple[0] }}">{{ tuple[0] }}</a></li>
             {% endfor %}
         </ul>
     {% else %}

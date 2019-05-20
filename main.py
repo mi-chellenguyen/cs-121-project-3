@@ -1,12 +1,5 @@
-import mongo_setup as mongo_setup
 from flask import Flask, request, render_template
-
 import os
-import json
-import nltk 
-import string
-from collections import defaultdict
-from nltk.stem.snowball import EnglishStemmer # note: only works with English language
 from corpus import Corpus
 from bs4 import BeautifulSoup
 from lxml import html
@@ -14,7 +7,6 @@ from index import Index
 
 app = Flask(__name__)
 
-# maps index_entry.html to python function index_entry()
 @app.route('/')
 def index():
     return render_template("index.html")
@@ -29,22 +21,21 @@ def search(query: str):
     print("You searched for:", query)
     results = index.search(query)
     print ("The query: '" + query +"' is found in these links: ", results)
-    # do search in db
     return results
 
-def main():
-    #mongo_setup.global_init()
-    pass
-
-def create_index():
+def create_index(reset=True):
         """
         return: Index object
         creates an inverted index from corpus
-        search only does bool retrieval (not ranked retrieval)
         """
         corpus = Corpus()
         index = Index(corpus)
         counter = 1
+
+        if reset:
+                print("reset parameter: ", reset, "deleting all rows from index")
+                index.collection.delete_many({}) # all rows from collection entries
+        
         # go through all directories in the corpus (0/0, 0/1, 0/2...) => folder 0, file 0 in WEBPAGES_RAW
         for directory in corpus.file_url_map:
                 # get file content
@@ -59,18 +50,18 @@ def create_index():
                 text = soup.text
         
                 # create tokens
-                tokens = index.tokenize(text)
+                tokens_tuple = index.tokenize(text)
         
                 # add tokens to index
-                index.add(tokens, text, directory)
+                index.add(tokens_tuple, directory)
 
-                if counter == 100:
+                if counter == 10:
                         break
                 counter += 1
+        index.calculate_tf_idf()
         return index
 
 if __name__ == '__main__':
-    # main()
     index = create_index()
     print("Index Created")
     app.run(debug=True)
