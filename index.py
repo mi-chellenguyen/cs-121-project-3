@@ -15,7 +15,6 @@ class Index:
                 self.collection = self.db.entries
                 self.corpus = corpus
                 self.stemmer = EnglishStemmer()
-                self.index = defaultdict(list)
                 self.stopwords = nltk.corpus.stopwords.words('english')
                 self.total_num_of_docs = 0 # used to calculate idf
 
@@ -60,56 +59,47 @@ class Index:
 
         def tokenize(self, text):
                 """
-                return: tuple->(dictionary->{token: num_of_occurances}, int->num_of_tokens)
+                return: tuple->(dictionary->{token: num_of_occurances})
                 tokenizes the given string
                 utilizes stemming and removes stopwords
                 """
-                num_of_tokens = 0 # used to calculate weighted term frequency
                 tokens = defaultdict(int)
                 text = self.remove_punctuation(text)
                 for token in [tok.lower() for tok in nltk.word_tokenize(text)]:
                         if not token in self.stopwords:
                                 token = self.stemmer.stem(token)
                                 tokens[token] += 1
-                                num_of_tokens += 1
-                return (tokens, num_of_tokens)
+                return tokens
         
-        def add(self, tokens_tuple, directory):
+        def add(self, tokens, directory):
                 """
                 takes a tokens_tuple (from a directory) which contains 2 items (dict,int).
                 tuple content is desscribed further in tokenize() docstring
                 adds a list of tokens to the inverted index 
-                index format: { _id(token) => postings: [{'doc_id': '0/0', 'tf': 0.125, 'tf_id': -1}, {}] }
+                index format: { _id(token) => postings: [{'doc_id': '0/0', 'tf': 0.125, 'tf_id': -1}, {...}] }
                 where doc_id = directory 0/0
                 where tf = num_of_occurances/num_of_tokens
 
                 TO DO:
                  - Term frequency (raw count) DONE
-                 - Term frequency (weighted/normalized) DONE
                  - Indices of occurrence within the document(optional)
-                 - idf (raw count) DONE
+                 - df (raw count) DONE
                  - idf (weighted) DONE
                  - tf-idf score DONE
                 """
                 posting = { 'doc_id' : '', "tf" : -1, "tf_idf" : -1 }
                 self.total_num_of_docs += 1 # used to calculate idf
-                num_of_tokens = tokens_tuple[1]
-                for token,num_of_occurances in tokens_tuple[0].items():
-                        if directory not in self.index[token]:
-                                weighted_tf = num_of_occurances/num_of_tokens
-                                self.index[token].append([directory, weighted_tf])
-                                posting['doc_id'] = directory
-                                posting['tf'] = weighted_tf
-                                self.collection.update({"_id": token}, {'$push': {'postings': posting}}, upsert = True)
-                # for token in tokens_tuple[0].keys():
-                #     print(token, self.index[token])
-
+                for token,num_of_occurances in tokens.items():
+                        posting['doc_id'] = directory
+                        posting['tf'] = num_of_occurances
+                        self.collection.update({"_id": token}, {'$push': {'postings': posting}}, upsert = True)
+                        
         def calculate_tf_idf(self):
                 for entry in self.collection.find(): #iterate through entire index
                         df = len(entry['postings'])
                         idf = math.log10(self.total_num_of_docs/df)
                         for i in range(df):
-                                tf = entry['postings'][i]['tf']
+                                tf = 1 + math.log10(entry['postings'][i]['tf'])
                                 tf_idf = tf * idf
                                 posting_location = "postings.{}.tf_idf".format(i)
                                 self.collection.update({'_id': entry['_id']}, {'$set': { posting_location: tf_idf} }  )

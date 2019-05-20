@@ -33,7 +33,7 @@ def create_index(reset=True):
         counter = 1
 
         if reset:
-                print("reset parameter: ", reset, "deleting all rows from index")
+                print("Reset parameter =", reset, ". Deleting all rows from index")
                 index.collection.delete_many({}) # all rows from collection entries
         
         # go through all directories in the corpus (0/0, 0/1, 0/2...) => folder 0, file 0 in WEBPAGES_RAW
