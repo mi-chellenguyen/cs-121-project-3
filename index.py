@@ -86,6 +86,7 @@ class Index:
                  - df (raw count) DONE
                  - idf (weighted) DONE
                  - tf-idf score DONE
+				 - bulk insert (optimization)
                 """
                 posting = { 'doc_id' : '', "tf" : -1, "tf_idf" : -1 }
                 self.total_num_of_docs += 1 # used to calculate idf
