@@ -24,42 +24,48 @@ def search(query: str):
     return results
 
 def create_index(reset=True):
-        """
-        return: Index object
-        creates an inverted index from corpus
-        """
-        corpus = Corpus()
-        index = Index(corpus)
-        counter = 1
+    """
+    return: Index object
+    creates an inverted index from corpus
+    """
+    corpus = Corpus()
+    index = Index(corpus)
+    counter = 1
 
-        if reset:
-                print("Reset parameter =", reset, ". Deleting all rows from index")
-                index.collection.delete_many({}) # all rows from collection entries
-        
-        # go through all directories in the corpus (0/0, 0/1, 0/2...) => folder 0, file 0 in WEBPAGES_RAW
-        for directory in corpus.file_url_map:
-                # get file content
-                folder,file = directory.split("/") #0/10 => folder = 0, file = 10
-                # print("FOLDER: {}, FILE: {}".format(folder,file))
-                file_addr = os.path.join(".", corpus.WEBPAGES_RAW_NAME, folder, file)
-                content_tree = html.parse(file_addr)
-                content_string = html.tostring(content_tree)
+    if reset:
+        print("Reset parameter =", reset, ". Deleting all rows from index")
+        index.collection.delete_many({}) # all rows from collection entries
+    
+    # go through all directories in the corpus (0/0, 0/1, 0/2...) => folder 0, file 0 in WEBPAGES_RAW
+    for directory in corpus.file_url_map:
+        # get file content
+        folder,file = directory.split("/") #0/10 => folder = 0, file = 10
+        # print("FOLDER: {}, FILE: {}".format(folder,file))
+        file_addr = os.path.join(".", corpus.WEBPAGES_RAW_NAME, folder, file)
+        content_tree = html.parse(file_addr)
+        try:
+            content_string = html.tostring(content_tree)
+        except:
+            content_string = ''
 
-                # use BeautifulSoup to parse HTML to remove HTML tags, resulting in just text
-                soup = BeautifulSoup(content_string, 'lxml')
-                text = soup.text
-        
-                # create tokens
-                tokens_tuple = index.tokenize(text)
-        
-                # add tokens to index
-                index.add(tokens_tuple, directory)
+        # use BeautifulSoup to parse HTML to remove HTML tags, resulting in just text
+        soup = BeautifulSoup(content_string, 'lxml')
+        text = soup.text
 
-                if counter == 10:
-                        break
-                counter += 1
-        index.calculate_tf_idf()
-        return index
+        # create tokens
+        tokens_tuple = index.tokenize(text)
+
+        # add tokens to index
+        index.add(tokens_tuple, directory)
+        
+        # remove if want to create index on ALL documents in corpus
+        #############################
+        if counter == 10: # will only go through first 10 documents
+            break
+        counter += 1
+        #############################
+    index.calculate_tf_idf()
+    return index
 
 if __name__ == '__main__':
     index = create_index()
