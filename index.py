@@ -23,32 +23,12 @@ class Index:
         self.total_num_of_docs = 0 # used to calculate idf
 
     def print_index(self):
+        """
+        prints everything in index
+        useful for debugging
+        """
         for entry in self.collection.find():
             print("id: {:20} postings: {}".format( entry['_id'], entry['postings']))
-
-    def search(self, query):
-        """
-        return: return a list of urls
-        search for a query in the index
-        results sorted by only by tf-idf score, need to implement cosine similarity
-        TO DO:
-        - implement searching for multi-word queries DONE
-        - splits query by spaces for now (how to handle things like commas in query)
-        - rank by cosine similarity
-        """
-        result_directories = set()
-        query_list = query.lower().split()
-        for word in query_list:
-            if not word in self.stopwords:
-                word = self.stemmer.stem(word)
-                directories = []
-                entry = self.collection.find_one({'_id': word})
-                if entry:
-                    for post in entry['postings']:
-                        directories.append( (post['doc_id'], post['tf_idf']) )
-                    result_directories |= set(directories) # union two sets
-        # map each result directory/document to its corresponding link
-        return sorted([(self.corpus.file_url_map[directory[0]],directory[1] )for directory in result_directories], key=lambda t: -t[1])   
 
     def remove_punctuation(self, text):
         return re.sub('[^a-zA-Z0-9]', ' ', text)
@@ -100,23 +80,65 @@ class Index:
         except BulkWriteError as bwe:
             print("error adding tokens from directory:", directory)
             pprint(bwe.details)
-        
+    
+    def search(self, query):
+        """
+        return: return a list of urls
+        search for a query in the index
+        will calculate tf-idf score for each query token if it has not been done yet
+        TO DO:
+        - implement searching for multi-word queries DONE
+        - splits query by spaces for now (how to handle things like commas in query)
+        - rank by cosine similarity
+        """
+        result_directories = set()
+        query_list = query.lower().split()
+        for word in query_list:
+            if not word in self.stopwords:
+                word = self.stemmer.stem(word)
+                directories = []
+                entry = self.collection.find_one({'_id': word})
+                if entry:
+                    if entry['postings'][0]['tf_idf'] == -1: # if tf-idf for a specific token has not been calculated yet
+                        self.calculate_tf_idf(entry)
+                        entry = self.collection.find_one({'_id': word}) # db modified
 
-    def calculate_tf_idf(self):
-        for entry in self.collection.find(): #iterate through entire index
-            df = len(entry['postings'])
-            idf = math.log10(self.total_num_of_docs/df)
-            db_requests = []
-            for i in range(df):
-                tf = 1 + math.log10(entry['postings'][i]['tf'])
-                tf_idf = tf * idf
-                posting_location = "postings.{}.tf_idf".format(i)
-                self.collection.update({'_id': entry['_id']}, {'$set': { posting_location: tf_idf} }  )
-                request = UpdateOne({'_id': entry['_id']}, {'$set': { posting_location: tf_idf} }  )
-                db_requests.append(request)
-            try:
-                self.collection.bulk_write(db_requests)
-            except BulkWriteError as bwe:
-                print("error writing to db in calculate_tf_idf():")
-                pprint(bwe.details)
-        self.print_index()
+                    for post in entry['postings']:
+                        directories.append( (post['doc_id'], post['tf_idf']) )
+                    result_directories |= set(directories) # union two sets
+        # map each result directory/document to its corresponding link
+        return sorted([(self.corpus.file_url_map[directory[0]],directory[1] )for directory in result_directories], key=lambda t: -t[1])   
+
+    def calculate_tf_idf(self, entry):
+        df = len(entry['postings'])
+        idf = math.log10(self.total_num_of_docs/df)
+        db_requests = []
+        for i in range(df):
+            tf = 1 + math.log10(entry['postings'][i]['tf'])
+            tf_idf = tf * idf
+            posting_location = "postings.{}.tf_idf".format(i)
+            request = UpdateOne({'_id': entry['_id']}, {'$set': { posting_location: tf_idf} }  )
+            db_requests.append(request)
+        try:
+            self.collection.bulk_write(db_requests)
+        except BulkWriteError as bwe:
+            print("error writing to db in calculate_tf_idf():")
+            pprint(bwe.details)
+
+
+        ######################## Calculated tf-idf for every entry in the index ############################
+        # for entry in self.collection.find(): #iterate through entire index
+        #     df = len(entry['postings'])
+        #     idf = math.log10(self.total_num_of_docs/df)
+        #     db_requests = []
+        #     for i in range(df):
+        #         tf = 1 + math.log10(entry['postings'][i]['tf'])
+        #         tf_idf = tf * idf
+        #         posting_location = "postings.{}.tf_idf".format(i)
+        #         request = UpdateOne({'_id': entry['_id']}, {'$set': { posting_location: tf_idf} }  )
+        #         db_requests.append(request)
+        #     try:
+        #         self.collection.bulk_write(db_requests)
+        #     except BulkWriteError as bwe:
+        #         print("error writing to db in calculate_tf_idf():")
+        #         pprint(bwe.details)

@@ -33,9 +33,9 @@ def create_index(reset=True):
     counter = 1
 
     if reset:
-        print("Reset parameter =", reset, ". Deleting all rows from index")
+        print("Reset parameter =", reset, ". Deleting all rows from index.")
         index.collection.delete_many({}) # all rows from collection entries
-    
+        print("db is reset, starting to create index...")
     # go through all directories in the corpus (0/0, 0/1, 0/2...) => folder 0, file 0 in WEBPAGES_RAW
     for directory in corpus.file_url_map:
         # get file content
@@ -60,11 +60,11 @@ def create_index(reset=True):
         
         # remove if want to create index on ALL documents in corpus
         #############################
-        if counter == 10: # will only go through first 10 documents
-            break
-        counter += 1
+        # if counter == 10: # will only go through first 10 documents
+        #     break
+        # counter += 1
         #############################
-    index.calculate_tf_idf()
+    # index.calculate_tf_idf()
     return index
 
 if __name__ == '__main__':
