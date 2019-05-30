@@ -5,7 +5,7 @@ from pprint import pprint
 from pymongo import MongoClient, UpdateOne
 from pymongo.errors import BulkWriteError
 from collections import defaultdict
-from nltk.stem.snowball import EnglishStemmer # note: only works with English language
+from nltk.stem.snowball import EnglishStemmer # note: only works with English language 
 
 class Index: 
     """
@@ -91,6 +91,7 @@ class Index:
         - splits query by spaces for now (how to handle things like commas in query)
         - rank by cosine similarity
         """
+        
         result_directories = set()
         query_list = query.lower().split()
         for word in query_list:
@@ -111,7 +112,10 @@ class Index:
 
     def calculate_tf_idf(self, entry):
         df = len(entry['postings'])
-        idf = math.log10(self.total_num_of_docs/df)
+        #can't log (0) so initialize idf to a large negative number
+        idf = -1000
+        if  ( not self.total_num_of_docs == 0):
+            idf = math.log10(self.total_num_of_docs/df)
         db_requests = []
         for i in range(df):
             tf = 1 + math.log10(entry['postings'][i]['tf'])

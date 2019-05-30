@@ -7,22 +7,55 @@
     <title>Results</title>
 
     <!-- Custom CSS Stylesheet -->
-    <link rel="stylesheet" type="text/css" href={{ url_for('static', filename='style.css') }}>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href={{ url_for('static', filename='style.css') }} >   <!--"/static/style.css"-->
+    <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/8bit-wonder" type="text/css"/> <!--logo -->
+    <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/gnu-unifont" type="text/css"/ >
 </head>
 <body>
-    <button onclick="window.location.href = '{{url_for("index")}}';" class="btn">Back</button>
-    <h1>Query: {{ query_param }}.</h1>
-    <h2>Results</h2>
-    {% if results|length > 0 %}
-        <ul>
-            <!-- tuple = (link, tf-idf score) -->
+    <div class="search-header">
+        <div>
+            <a class = "logo" href="{{url_for("index")}}"><h1>Bingle</h2></a>
+            <!--<button class = "logo" onclick="window.location.href = '{{url_for("index")}}';"> Bingle</h1></button> -->
+
+        
+            <form class = "form-header" action="results" method="GET">
+                    <input name = "query" type="text"  class="search-bar bar-header" placeholder="Search" value={{ query_param }} required>
+                    <button type="submit" class="btn">Go</button>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="list-group">
+        {% if results|length > 0 %}
+            <!--tuple = (link, title, content) --> 
             {% for tuple in results %} 
-                <li><a href="//{{ tuple[0] }}">{{ tuple[0] }}</a></li>
+                <div class="list-group-item">
+                    <a href="//{{ tuple[0] }}" >{{ tuple[1] }}</a>
+                    <p class="mb-1 description">{{ tuple[2] }}</p>
+                </div>
             {% endfor %}
-        </ul>
-    {% else %}
-        <h2>No Results Found.</h2>
-    {% endif %}
+            
+        {% else %}
+            <h2>No Results Found.</h2>
+        {% endif %}
+    </div>
+    <!--
+    <table class = "table-borderless">
+        {% if results|length > 0 %}-->
+                <!--tuple = (link, title, content) --> <!--
+                {% for tuple in results %} 
+                    <tr>
+                        <td><a href="//{{ tuple[0] }}">{{ tuple[0] }}</a></td>
+                    </tr>
+                {% endfor %}
+            
+        {% else %}
+            <h2>No Results Found.</h2>
+        {% endif %}
+    </table>
+    -->
 
 </body>
 </html>

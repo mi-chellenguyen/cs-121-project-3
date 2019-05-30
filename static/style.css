@@ -1,28 +1,106 @@
 body {
-    background-color: #defcfc;
+    background-image: linear-gradient(#33B5DA ,#A2EBE4 ,#45DCE3 );
     margin: 0;
     padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
-}
-p {
-    font-size: 3rem;
+    /*font-family: Arial, Helvetica, sans-serif;*/
+    font-family: 'UnifontMedium'; 
+    font-weight: normal; 
+    font-style: normal;
 }
 
-.search-form {
-    transform: translateY(800%);
+.index-body {
+    background-image: url("https://i.pinimg.com/originals/9c/15/ac/9c15ac1664e13633d1fda91d0a2bae05.gif"); 
+}
+
+p {
+    font-size: 2rem;
+    padding-left: 1rem;
+    color:#7C7C7C;
+}
+
+h1{
+    font-family: '8BITWONDERNominal';
     text-align: center;
+    font-size: 5rem;
+    margin:0px;
+    padding: 1rem 1rem 1rem 1rem;
+    border-radius: 5px;
+    border-style: none;
+    width: 100%;
+    color: #AEACE5;
+}
+
+h1.main-page{
+    text-align:center;
+    margin-top: 15%;
+    margin-bottom:1rem;
+}
+
+h1.emphasis{
+    color: #FFAAEA;
+}
+
+.logo {
+    text-decoration: none;
+    align-self: flex-start;
+    text-align:left;
+    background-color:transparent;
+
+}
+
+.logo:hover{
+    text-decoration: none;
+}
+
+
+
+.search-form {
+
+    align-items: left;
+    display: block;
+    justify-content: right;
+    text-align:center;
+    vertical-align: middle;
+    width:100%;
 }
 
 .search-bar {
+    font-family: 'UnifontMedium'; 
     font-size: 1.2rem;
     padding: 0.5rem 1rem;
     border-radius: 5px;
     background-color: #7edbe4;
     border-style: none;
     width: 30%;
+    margin-right:.5rem;
+}
+
+.search-header {
+    background-image: url("https://i.pinimg.com/originals/9c/15/ac/9c15ac1664e13633d1fda91d0a2bae05.gif"); 
+    height:100%;
+    align-items: center;
+    display: flex;
+    justify-content: left;
+    text-align:center;
+    vertical-align: middle;
+}
+
+.form-header {
+    padding:.5rem;
+    align-items: flex-start;
+    display: flex;
+    justify-content: center;
+    text-align:center;
+    vertical-align: bottom;
+    width:80%;
+}
+
+.bar-header{
+    width: 70%;
 }
 
 .btn {
+    font-family: 'UnifontMedium'; 
     font-size: 1.2rem;
     padding: 0.5rem;
     border-radius: 5px;
@@ -31,9 +109,19 @@ p {
     background-color: #7edbe4;
 }
 
+.description{
+    font-size: 1rem;
+}
+
+.list-group-item{
+    background-color:transparent;
+    border-color:#DEFFF4;
+}
+
+
 .btn:hover {
     transition-duration: 250ms;
-    background-color: #fdc9d4;
+    background-color: #3096D8;
 }
 
 input::placeholder, input {
@@ -43,5 +131,5 @@ input::placeholder, input {
 input:focus {
     transition-duration: 250ms;
     outline: none;
-    background-color: #fdc9d4;
+    background-color: #3096D8;
 }

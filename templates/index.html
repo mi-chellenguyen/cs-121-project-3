@@ -8,8 +8,11 @@
 
     <!-- Custom CSS Stylesheet -->
     <link rel="stylesheet" type="text/css" href={{ url_for('static', filename='style.css') }} >   <!--"/static/style.css"-->
+    <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/8bit-wonder" type="text/css"/> <!--logo -->
+    <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/gnu-unifont" type="text/css"/ >
 </head>
-<body>
+<body class = "index-body">
+    <a class = "logo" href="{{url_for("index")}}"><h1 class = "main-page">Bingle</h2></a>
     <div class="search-form">
         <form action="results" method="GET">
                 <input name = "query" type="text"  class="search-bar" placeholder="Search" required>
