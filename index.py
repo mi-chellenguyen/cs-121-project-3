@@ -91,7 +91,7 @@ class Index:
         - splits query by spaces for now (how to handle things like commas in query)
         - rank by cosine similarity
         """
-        
+
         result_directories = set()
         query_list = query.lower().split()
         for word in query_list:

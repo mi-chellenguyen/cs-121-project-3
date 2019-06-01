@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from lxml import html
 from index import Index
 from urllib.request import urlopen
+import re
 
 app = Flask(__name__)
 
@@ -16,16 +17,17 @@ def index():
 def results():
     query = request.args.get("query")
     results = search(query)
-    top_results = top_search(results)
+    top_results = top_search(results,query)
     return render_template("results.html", query_param = query, results = top_results)
 
 def search(query: str):
     print("You searched for:", query)
     results = index.search(query)
     print ("The query: '" + query +"' is found in these links: ", results)
+    print("query size is : " + str(len(results)))
     return results
 
-def top_search(results: []):
+def top_search(results: [],query):
 	#returns tuple list (link, title, content)
 	#restricted to 100 searches for time
     corpus = Corpus()
@@ -43,13 +45,25 @@ def top_search(results: []):
                 content_string = ''
             soup = BeautifulSoup(content_string,"lxml")
             title = soup.title.string
+            if not title:
+            	title = link
+            	
             content = ""
-            meta = soup.find_all('meta')
-            for tag in meta:
-                if 'name' in tag.attrs.keys() and tag.attrs['name'].strip().lower() == 'description':
-                    content = tag.attrs['content']
+            
+            try:
+                text = soup.get_text()
+                #get 150 chars before +query + word
+                matches = re.search( r"(.{{0,50}}{}.{{0,50}})".format(query), text,re.I)
+                #print(text)
+                print (str(matches.group(0)))
+                content = "...{}...".format(str(matches.group(0)))
+            except:
+                meta = soup.find_all('meta')
+                for tag in meta:
+                    if 'name' in tag.attrs.keys() and tag.attrs['name'].strip().lower() == 'description':
+                        content = tag.attrs['content']
+
             top_results.append((link, title, content))
-            """print(link, title, content)"""
         except:
             top_results.append((link, link, ""))
         if count ==100:
@@ -65,6 +79,8 @@ def create_index(reset=False):
     corpus = Corpus()
     index = Index(corpus)
     counter = 1
+    print("total num of document: " + str(index.total_num_of_docs))
+    print("total num of unique words: " + str(index.collection.count()))
 
     if reset:
         print("Reset parameter =", reset, ". Deleting all rows from index.")
